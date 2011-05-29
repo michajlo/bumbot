@@ -1,0 +1,16 @@
+I wanted to learn OCaml, I wanted to write an IRC bot, so I killed two birds with one stone.
+
+Files
+-----
+bumbot.ml provides the basic stuff you'll need to write a bot on top of bumbot.
+
+loggingbot.ml is a sample bot built on top of bumbot.  It's pretty rough around the edges right now.
+
+Usage
+-----
+To build a bot on top of bumbot you simply call connect_bot, providing host, port, nickname, room, and a function for handling received commands. The handler function takes a Bumbot.irc_message and returns a Bumbot.irc_response.
+
+TODOs
+-----
+- Rework bumbot message parsing
+- Make loggingbot a little less rough around the edges
