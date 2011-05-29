@@ -20,7 +20,7 @@ let mkdir_if_not_exists d =
 let rec output_of_list base l = 
     match l with
     | [] -> raise InvalidFileError
-    | [e] -> open_out_gen [Open_append] 0o655 (base ^ e)
+    | [e] -> open_out_gen [Open_creat;Open_append] 0o655 (base ^ e)
     | h::tl -> let dirname = base ^ h ^ "/" in
         mkdir_if_not_exists dirname;
         output_of_list dirname tl;;

@@ -15,13 +15,14 @@ let send_line oc line =
     output_string oc (line ^ "\r\n");
     flush oc;;
 
+let trim_carriage_return s =
+    if String.rindex s '\r' = (String.length s) - 1 then
+        String.sub s 0 ((String.length s) - 1)
+    else
+        s
+
 let parse_message raw_msg =
-    let msg =
-        if String.rindex raw_msg '\r' = (String.length raw_msg) - 1 then
-            String.sub raw_msg 0 ((String.length raw_msg) - 1)
-        else
-            raw_msg
-    in
+    let msg = trim_carriage_return raw_msg in
         if String.sub msg 0 6 = "PING :" then
             Ping (String.sub msg 6 ((String.length msg) - 6))
         else
