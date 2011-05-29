@@ -21,18 +21,36 @@ let trim_carriage_return s =
     else
         s
 
+let starts_with s c =
+    String.get s 0 = c
+
+let strip_first_char s =
+    String.sub s 1 ((String.length s) -1)
+
+(* TODO: make tail recursive... *)
+let rec parse_params ss =
+    match ss with
+    | [] -> []
+    | h::tl ->
+        if starts_with h ':' then 
+            [List.fold_left (fun a v -> a ^ " " ^ v) (strip_first_char h) tl]
+        else
+            h :: parse_params tl
+
+let parse_parts ss =
+    let h,tl = (List.hd ss), (List.tl ss) in
+        if starts_with h ':' then
+            (strip_first_char h), (List.hd tl), (parse_params (List.tl tl))
+        else
+            "", h, tl
+
 let parse_message raw_msg =
     let msg = trim_carriage_return raw_msg in
-        if String.sub msg 0 6 = "PING :" then
-            Ping (String.sub msg 6 ((String.length msg) - 6))
-        else
-            let parts = Str.split (Str.regexp_string " ") msg in
-            match parts with
-                | prefix::"PRIVMSG"::target::rest ->
-                    let sender = String.sub prefix 1 ((String.length prefix) - 1) in
-                    let message = String.sub (List.hd rest) 1 ((String.length (List.hd rest)) - 1) ^
-                                List.fold_left (fun a v -> a ^ " " ^ v) "" (List.tl rest)
-                    in Privmsg (sender, target, message)
+        let parts = Str.split (Str.regexp_string " ") msg in
+            let msg' = parse_parts parts in
+                match msg' with
+                | (_,"PING",m) -> Ping (List.hd m)
+                | (s,"PRIVMSG",[t;m]) -> Privmsg (s,t,m)
                 | _ -> Unhandled msg;;
 
 
