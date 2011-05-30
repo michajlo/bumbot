@@ -42,14 +42,14 @@ let parse_parts ss =
         if starts_with h ':' then
             (strip_first_char h), (List.hd tl), (parse_params (List.tl tl))
         else
-            "", h, tl
+            "", h, parse_params tl
 
 let parse_message raw_msg =
     let msg = trim_carriage_return raw_msg in
         let parts = Str.split (Str.regexp_string " ") msg in
             let msg' = parse_parts parts in
                 match msg' with
-                | (_,"PING",m) -> Ping (List.hd m)
+                | (_,"PING",[m]) -> Ping m
                 | (s,"PRIVMSG",[t;m]) -> Privmsg (s,t,m)
                 | _ -> Unhandled msg;;
 
@@ -60,19 +60,21 @@ let connect_bot host port nick room botfun =
         with Failure("inet_addr_of_string") ->
             (gethostbyname host).Unix.h_addr_list.(0)
     in
-        let inchan,outchan = 
-            open_connection (ADDR_INET (server_addr, port))
-        in
-            send_line outchan ("USER " ^ nick ^ " 0 * :Bum Bot");
-            send_line outchan ("NICK " ^ nick);
-            send_line outchan ("JOIN #" ^ room);
-            let rec loop u = 
-                let msg = parse_message (input_line inchan) in
-                match msg with 
-                    | Ping(m) -> send_line outchan ("PONG :" ^ m); print_endline "PONG"; loop ();
-                    | _ as m ->
-                        match (botfun m) with
-                            | Msg(target,tosend) -> send_line outchan ("PRIVMSG " ^ target ^ " :" ^ tosend); loop ();
-                            | Noreply -> loop ();
-            in loop ();;
+        let inchan,outchan = open_connection (ADDR_INET (server_addr, port)) in
+            let send = send_line outchan in
+                send ("USER " ^ nick ^ " 0 * :Bum Bot");
+                send ("NICK " ^ nick);
+                send ("JOIN #" ^ room);
+                let rec loop u = 
+                    let msg = parse_message (input_line inchan) in
+                    (
+                        match msg with 
+                        | Ping(m) -> send ("PONG :" ^ m); print_endline "PONG";
+                        | _ as m -> 
+                            match (botfun m) with
+                            | Msg(target,tosend) -> send ("PRIVMSG " ^ target ^ " :" ^ tosend);
+                            | Noreply -> () 
+                    );
+                    loop ();
+                in loop ();;
 
