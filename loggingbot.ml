@@ -42,6 +42,14 @@ let handle_privmsg f t m =
     else
         Noreply;;
 
+let handle_join s c =
+    log_message "" ("---" ^ s ^ " joined");
+    Noreply;;
+
+let handle_part s c m =
+    log_message "" ("---" ^ s ^ " left, reason: " ^ m);
+    Noreply;;
+
 let handle_unhandled m =
     print_endline m;
     Noreply;;
@@ -49,6 +57,8 @@ let handle_unhandled m =
 let handle_command cmd =
     match cmd with
     | Privmsg(f,t,m) -> handle_privmsg f t m;
+    | Join(s,c) -> handle_join s c;
+    | Part(s,c,m) -> handle_part s c m;
     | Unhandled(m) -> handle_unhandled m;
     | _ -> Noreply;;
 

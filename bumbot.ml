@@ -5,6 +5,8 @@ open Str
 type irc_message = 
     | Ping of string
     | Privmsg of string * string * string
+    | Join of string * string
+    | Part of string * string * string
     | Unhandled of string
 
 type irc_response =
@@ -51,6 +53,9 @@ let parse_message raw_msg =
                 match msg' with
                 | (_,"PING",[m]) -> Ping m
                 | (s,"PRIVMSG",[t;m]) -> Privmsg (s,t,m)
+                | (s,"JOIN",[c]) -> Join (s,c)
+                | (s,"PART",[c;m]) -> Part (s,c,m)
+                | (s,"PART",[c]) -> Part (s,c,"")
                 | _ -> Unhandled msg;;
 
 
