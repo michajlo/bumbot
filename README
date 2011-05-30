@@ -10,6 +10,16 @@ Usage
 -----
 To build a bot on top of bumbot you simply call connect_bot, providing host, port, nickname, room, and a function for handling received commands. The handler function takes a Bumbot.irc_message and returns a Bumbot.irc_response.
 
+Compiling
+---------
+To compile loggingbot simply run
+    ocamlbuild -l unix -l str loggingbot.native
+
+To run do
+    ./loggingbot.native host port nick room
+
+The # is automatically prefixed
+
 TODOs
 -----
 - Rework bumbot message parsing
