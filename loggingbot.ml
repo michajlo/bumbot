@@ -36,9 +36,11 @@ let log_message base str =
                 close_out handle;;
 
 let handle_privmsg f t m =
-    print_endline (f ^ " -> " ^ t ^ ": " ^ m);
-    log_message "" (f ^ ": " ^ m); 
-    Msg (t,m)
+    if starts_with t '#' then (
+        log_message "" (f ^ ": " ^ m);
+        Noreply )
+    else
+        Noreply;;
 
 let handle_unhandled m =
     print_endline m;
