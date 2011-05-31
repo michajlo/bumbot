@@ -35,34 +35,35 @@ let log_message base str =
                 output_string handle (str ^ "\n");
                 close_out handle;;
 
-let handle_privmsg f t m =
-    if starts_with t '#' then (
-        log_message "" (f ^ ": " ^ m);
-        Noreply )
-    else
-        Noreply;;
+(* return nick (portion before ! *)
+let nick_of_source s =
+    try
+        String.sub s 0 (String.index s '!')
+    with Not_found ->
+        s
 
-let handle_join s c =
-    log_message "" ("---" ^ s ^ " joined");
-    Noreply;;
-
-let handle_part s c m =
-    log_message "" ("---" ^ s ^ " left, reason: " ^ m);
-    Noreply;;
-
-let handle_unhandled m =
-    print_endline m;
-    Noreply;;
-
-let handle_command cmd =
-    match cmd with
-    | Privmsg(f,t,m) -> handle_privmsg f t m;
-    | Join(s,c) -> handle_join s c;
-    | Part(s,c,m) -> handle_part s c m;
-    | Unhandled(m) -> handle_unhandled m;
-    | _ -> Noreply;;
+let handle_command logbase cmd =
+    let emit = log_message logbase in
+        match cmd with
+        | Privmsg(f,t,m) -> 
+            if starts_with t '#' then (
+                emit ((nick_of_source f) ^ ": " ^ m);
+                Noreply;
+            ) else
+                Noreply
+        | Join(s,c) -> 
+            emit ("---> " ^ s ^ " joined");
+            Noreply;
+        | Part(s,c,m) ->
+            emit ("<--- " ^ s ^ " left, reason: " ^ m);
+            Noreply;
+        | Unhandled(m) ->
+            print_endline m;
+            Noreply;
+        | _ ->
+            Noreply;;
 
 try 
-    connect_bot Sys.argv.(1) (int_of_string Sys.argv.(2)) Sys.argv.(3) Sys.argv.(4) handle_command
+    connect_bot Sys.argv.(1) (int_of_string Sys.argv.(2)) Sys.argv.(3) Sys.argv.(4) (handle_command Sys.argv.(5))
 with Invalid_argument("index out of bounds") ->
     printf "usage: %s <host> <port> <nick> <room>\n" Sys.argv.(0)
