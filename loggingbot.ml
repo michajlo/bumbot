@@ -66,4 +66,4 @@ let handle_command logbase cmd =
 try 
     connect_bot Sys.argv.(1) (int_of_string Sys.argv.(2)) Sys.argv.(3) Sys.argv.(4) (handle_command Sys.argv.(5))
 with Invalid_argument("index out of bounds") ->
-    printf "usage: %s <host> <port> <nick> <room>\n" Sys.argv.(0)
+    printf "usage: %s <host> <port> <nick> <room> <logbase>\n" Sys.argv.(0)

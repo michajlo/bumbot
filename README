@@ -16,7 +16,7 @@ To compile loggingbot simply run
     ocamlbuild -l unix -l str loggingbot.native
 
 To run do
-    ./loggingbot.native host port nick room
+    ./loggingbot.native host port nick room logbase
 
 The # is automatically prefixed
 
