@@ -48,18 +48,18 @@ let handle_command logbase cmd =
         | Privmsg(f,t,m) -> 
             if starts_with t '#' then (
                 emit ((nick_of_source f) ^ ": " ^ m);
-                Noreply;
-            ) else
                 Noreply
+            ) else 
+                Msg (nick_of_source f, m)
         | Join(s,c) -> 
             emit ("---> " ^ s ^ " joined");
-            Noreply;
+            Noreply
         | Part(s,c,m) ->
             emit ("<--- " ^ s ^ " left, reason: " ^ m);
-            Noreply;
+            Noreply
         | Unhandled(m) ->
             print_endline m;
-            Noreply;
+            Noreply
         | _ ->
             Noreply;;
 
