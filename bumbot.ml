@@ -7,6 +7,7 @@ type irc_message =
     | Privmsg of string * string * string
     | Join of string * string
     | Part of string * string * string
+    | Quit of string * string
     | Unhandled of string
 
 type irc_response =
@@ -56,6 +57,8 @@ let parse_message raw_msg =
                 | (s,"JOIN",[c]) -> Join (s,c)
                 | (s,"PART",[c;m]) -> Part (s,c,m)
                 | (s,"PART",[c]) -> Part (s,c,"")
+                | (s,"QUIT",[m]) -> Quit (s,m)
+                | (s,"QUIT",[]) -> Quit (s,"")
                 | _ -> Unhandled msg;;
 
 

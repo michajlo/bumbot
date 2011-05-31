@@ -57,6 +57,9 @@ let handle_command logbase cmd =
         | Part(s,c,m) ->
             emit ("<--- " ^ s ^ " left, reason: " ^ m);
             Noreply
+        | Quit(s,m) ->
+            emit ("<--- " ^ s ^ " quit, reason: " ^ m);
+            Noreply
         | Unhandled(m) ->
             print_endline m;
             Noreply
